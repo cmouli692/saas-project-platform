@@ -1,11 +1,24 @@
 import { useState ,useEffect } from "react";
 import Input from "../components/Input";
+import {useAuth} from "../context/AuthContext.jsx"
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+
+  const {login,user} = useAuth()
+  const navigate = useNavigate()
+
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  useEffect(() => {
+    if(user){
+      navigate("/dashboard")
+    }
+
+  },[])
 
   const [error, setError] = useState("");
 
@@ -16,16 +29,25 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
     if (!form.email || !form.password) {
       setError("All fields are required");
+    
     }
 
     setError("");
+
+    login(form)
+    navigate("/dashboard")
+
+    
+
+    
   };
 
-  useEffect(() => {
-    console.log("Login page loaded")
-  } , [])
+  // useEffect(() => {
+  //   console.log("Login page loaded")
+  // } , [])
 
   return (
     <div className="h-screen flex items-center justify-center bg-gray-100">
