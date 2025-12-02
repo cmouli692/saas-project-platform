@@ -1,24 +1,29 @@
 import { useState ,useEffect } from "react";
 import Input from "../components/Input";
-import {useAuth} from "../context/AuthContext.jsx"
+// import {useAuth} from "../context/AuthContext.jsx"
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { loginSuccess } from "../features/auth/authSlice.js";
 
 const Login = () => {
-
-  const {login,user} = useAuth()
-  const navigate = useNavigate()
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+
+  // const {login,user} = useAuth()
+  const navigate = useNavigate()
+
   useEffect(() => {
     if(user){
       navigate("/dashboard")
     }
 
-  },[])
+  },[user])
 
   const [error, setError] = useState("");
 
@@ -37,13 +42,18 @@ const Login = () => {
 
     setError("");
 
-    login(form)
-    navigate("/dashboard")
+    // login(form)
+    // navigate("/dashboard")
+
+    dispatch(loginSuccess({email: form.email,token : "fake-jwt-token"}))
+    navigate("/dashboard");
 
     
 
     
   };
+
+  // delete below if not needed
 
   // useEffect(() => {
   //   console.log("Login page loaded")
