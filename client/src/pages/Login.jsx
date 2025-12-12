@@ -2,6 +2,7 @@ import { useState ,useEffect } from "react";
 import Input from "../components/Input";
 // import {useAuth} from "../context/AuthContext.jsx"
 import { useNavigate } from "react-router-dom";
+import {loginUser} from "../api/authApi"
 import { useDispatch, useSelector } from "react-redux";
 import { loginSuccess } from "../features/auth/authSlice.js";
 
@@ -37,16 +38,26 @@ const Login = () => {
     
     if (!form.email || !form.password) {
       setError("All fields are required");
+      return;
     
     }
 
-    setError("");
+    try {
+      // TEMPORARY MOCK: Replace with real API on Day 15
+      const result = {email: form.email, token: "fake-jwt-token"}
+      dispatch(loginSuccess(result))
+      navigate("/dashboard")
+
+    } catch (error) {
+      setError("Invalid credentials");
+      
+    }
 
     // login(form)
     // navigate("/dashboard")
 
-    dispatch(loginSuccess({email: form.email,token : "fake-jwt-token"}))
-    navigate("/dashboard");
+    // dispatch(loginSuccess({email: form.email,token : "fake-jwt-token"}))
+    // navigate("/dashboard");
 
     
 
