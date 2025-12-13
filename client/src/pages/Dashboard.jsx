@@ -14,7 +14,9 @@ const Dashboard = () => {
   return (
     <MainLayout>
       <h1 className="text-2xl font-semibold">Welcome to the Dashboard 🎉</h1>
-      <button
+      
+      {/* This is for test purpose only like api with axios */}
+      {/* <button
         onClick={async () => {
           const data = await testInterceptor();
           console.log("TEST HEADER RESPONSE:", data);
@@ -22,7 +24,7 @@ const Dashboard = () => {
         className="bg-blue-500 text-white px-4 py-1 rounded mt-4"
       >
         Test Axios Interceptor
-      </button>
+      </button> */}
 
       {/* <button onClick={() => dispatch(logout())} className="bg-red-500 rounded text-white px-4 py-1 cursor-pointer">Logout</button> */}
     </MainLayout>
