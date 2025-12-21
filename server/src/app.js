@@ -3,6 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import "./config/db.js"
 import dbTestRoute from "./routes/dbTest.js"
+import authRoutes from "./routes/authRoutes.js"
 
 const app = express();
 
@@ -22,6 +23,8 @@ app.get("/api/health", (req,res)=> {
 }) 
 
 app.use("/api" , dbTestRoute)
+
+app.use("/api/auth" , authRoutes)
 
 
 export default app;
