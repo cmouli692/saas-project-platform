@@ -4,6 +4,7 @@ import morgan from "morgan";
 import "./config/db.js"
 import dbTestRoute from "./routes/dbTest.js"
 import authRoutes from "./routes/authRoutes.js"
+import protectedTest from "./routes/protectedTest.js"
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.get("/api/health", (req,res)=> {
 app.use("/api" , dbTestRoute)
 
 app.use("/api/auth" , authRoutes)
+app.use("/api" , protectedTest)
 
 
 export default app;
