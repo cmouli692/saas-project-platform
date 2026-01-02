@@ -3,8 +3,8 @@ import { store} from "../store/store";
 import {logout} from "../features/auth/authSlice"
 
 const api = axios.create({
-    baseUrl: import.meta.env.VITE_API_URL ,
-    withCredentials : false,
+    baseURL: import.meta.env.VITE_API_URL ,
+    withCredentials : true,
 })
 
 // REQUEST INTERCEPTOR

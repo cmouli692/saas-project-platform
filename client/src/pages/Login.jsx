@@ -16,7 +16,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
 
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.user);
+  const user = useSelector((state) => state.auth.auth);
 
   // const {login,user} = useAuth()
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const Login = () => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit =  (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.email || !form.password) {
       setError("All fields are required");
@@ -44,13 +44,15 @@ const Login = () => {
     setLoading(true);
     try {
       
-      const result = { email: form.email, token: "fake-jwt-token" };
+      // const result = { email: form.email, token: "fake-jwt-token" };
+      const data = await loginUser(form); // backend call
+
       
-      dispatch(loginSuccess(result));
+      dispatch(loginSuccess(data));
      
       navigate("/dashboard");
     } catch (err) {
-      setError("Invalid credentials");
+      setError(err.response?.data?.message || "Login failed");
     } finally {
       
       setLoading(false);
