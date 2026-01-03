@@ -41,3 +41,77 @@ export const getMyProjects = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+// UPDATE PROJECT
+
+export const updateProject = async (req, res) => {
+  try {
+
+    const {id } = req.params;
+    const { name, description} = req.body || {};
+    const userId = req.user.id;
+    if(!name){
+      return res.status(400).json({success: false, message:"Project name is required"});
+      
+    }
+
+    // Check ownership 
+    const existing = await pool.query(
+      "SELECT user_id FROM projects WHERE id = $1",[id]
+    );
+
+    if(existing.rows.length ===0){
+      return res.status(404).json({message:"Project not found"});
+    }
+
+    if(existing.rows[0].user_id !== userId){
+      return res.status(403).json({message:"Forbidden"})
+    }
+
+    const result = await pool.query(
+      "UPDATE projects SET name = $1, description = $2 WHERE id = $3 RETURNING id, name, description, created_at",
+      [name, description || "" , id]
+    );
+
+    res.json({message:"Project updated", project:result.rows[0]});
+
+
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({message : "Server error"});
+    
+  }
+}
+
+
+// DELETE PROJECT
+
+export const deleteProject  = async (req,res) => {
+  try {
+    const {id} = req.params;
+    const userId = req.user.id;
+    // Check ownership
+    const existing = await pool.query(
+      "SELECT user_id FROM projects WHERE id = $1", [id]
+    )
+
+    if(existing.rows.length ===0){
+      return res.status(404).json({message:"Project not found"});
+
+    }
+
+    if(existing.rows[0].user_id !== userId){
+      return res.status(403).json({message : "Forbidden"});
+    }
+
+    await pool.query("DELETE FROM projects WHERE id = $1", [id]);
+    res.json({message: "Project deleted"});
+    
+  } catch (error) {
+    console.error("DELETE PROJECT ERROR:", error);
+    res.status(500).json({message: "Server error" });
+    
+  }
+}
