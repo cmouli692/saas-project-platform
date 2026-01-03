@@ -1,10 +1,11 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
-import "./config/db.js"
-import dbTestRoute from "./routes/dbTest.js"
-import authRoutes from "./routes/authRoutes.js"
-import protectedTest from "./routes/protectedTest.js"
+import "./config/db.js";
+import dbTestRoute from "./routes/dbTest.js";
+import authRoutes from "./routes/authRoutes.js";
+import protectedTest from "./routes/protectedTest.js";
+import projectRoutes from "./routes/projectRoutes.js";
 
 const app = express();
 
@@ -15,18 +16,18 @@ app.use(
   })
 );
 
-app.use(express.json())
+app.use(express.json());
 
-app.use(morgan("dev"))
+app.use(morgan("dev"));
 
-app.get("/api/health", (req,res)=> {
-    res.json({status: "OK" , message: "Backend is running"})
-}) 
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", message: "Backend is running" });
+});
 
-app.use("/api" , dbTestRoute)
+app.use("/api", dbTestRoute);
 
-app.use("/api/auth" , authRoutes)
-app.use("/api" , protectedTest)
-
+app.use("/api/auth", authRoutes);
+app.use("/api", protectedTest);
+app.use("/api/projects", projectRoutes);
 
 export default app;
