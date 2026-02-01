@@ -31,32 +31,47 @@ export const createProject = async (req, res) => {
 export const getMyProjects = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { page, limit } = req.query;
+    const { page, limit,search, sort, order } = req.query;
     const { page: p, limit: l, offset } = getPagination(page, limit);
 
-    const totalRes = await pool.query(
-      "SELECT COUNT(*) FROM projects WHERE user_id = $1",
-      [userId]
-    );
 
-    const total = parseInt(totalRes.rows[0].count, 10);
+    // allowlist
+    const sortField = ["created_at", "name"].includes(sort) ? sort : "created_at";
+    const sortOrder = order === "asc" ? "ASC" : "DESC";
+    const searchValue = search ? `%${search}%` : null;
 
-    const result = await pool.query(
-      `SELECT id, name, description, created_at FROM projects WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
-      [userId, l, offset]
-    );
+    const  countQuery = `
+    SELECT COUNT(*) FROM projects
+    WHERE user_id = $1
+    ${searchValue ? "AND name ILIKE $2" : ""}`;
 
-    // const result = await pool.query(
-    //   "SELECT id, name, description, created_at FROM projects WHERE user_id = $1 ORDER BY created_at DESC",
-    //   [userId]
-    // );
+    const countParams = search ? [userId , searchValue] : [userId];
+    
+    const totalRes = await pool.query(countQuery, countParams);
+    const total = parseInt(totalRes.rows[0].count,10);
 
-    // res.json({ projects: result.rows });
+    const dataQuery = `
+    SELECT id, name, description,created_at FROM projects
+    WHERE user_id = $1
+    ${search ? "AND name ILIKE $2" : ""}
+    ORDER BY ${sortField} ${sortOrder}
+    LIMIT $${search ? 3 : 2} OFFSET $${search ? 4 : 3}`;
 
+
+    const dataParams = search ? [userId, searchValue, l , offset] : [userId , l, offset];
+
+   
+    const result = await pool.query(dataQuery, dataParams);
     res.json({
-      data: result.rows,
-      meta: { page: p, limit: l, total, totalPages: Math.ceil(total / l) },
-    });
+      data:result.rows,
+      meta: {
+        page: p,
+        limit:l,
+        total,
+        totalPages: Math.ceil(total / l),
+      
+      }
+    })
   } catch (error) {
     console.error("GET PROJECTS PAGINATED ERROR:", error);
     res.status(500).json({ message: "Server error" });

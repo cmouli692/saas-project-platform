@@ -35,7 +35,7 @@ export const createTask = async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO tasks (title, project_id) VALUES ($1, $2) RETURNING id, title, completed, created_at`,
-      [title, projectId]
+      [title, projectId],
     );
     res.status(201).json({ task: result.rows[0] });
   } catch (error) {
@@ -49,27 +49,44 @@ export const getTasksByProject = async (req, res) => {
   try {
     const { projectId } = req.params;
     const userId = req.user.id;
-    const { page, limit } = req.query;
+    const { page, limit, search, sort, order } = req.query;
     const { page: p, limit: l, offset } = getPagination(page, limit);
     const check = await checkProjectOwnership(projectId, userId);
     if (!check.ok) {
-      return res
-        .status(check.code)
-        .json({
-          message: check.code === 404 ? "Project not found" : "Forbidden",
-        });
+      return res.status(check.code).json({
+        message: check.code === 404 ? "Project not found" : "Forbidden",
+      });
     }
+
+    // allowlist
+    const sortField = ["created_at", "completed"].includes(sort)
+      ? sort
+      : "created_at";
+    const sortOrder = order === "asc" ? "ASC" : "DESC";
+    const searchValue = search ? `%${search}%` : null;
+
+    const countQuery = `
+    SELECT COUNT(*) FROM tasks
+    WHERE project_id = $1
+    ${search ? "AND title ILIKE $2" : ""}`;
+
+    const countParams = search ? [projectId, searchValue] : [projectId];
     const totalRes = await pool.query(
-      "SELECT COUNT(*) FROM tasks WHERE project_id = $1",
-      [projectId]
+      countQuery,
+      countParams,
     );
     const total = parseInt(totalRes.rows[0].count, 10);
-    
-    const result = await pool.query(
-      `SELECT id, title, completed, created_at FROM tasks WHERE project_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`, [projectId, l ,offset],
-      
-    );
 
+    const dataQuery = `
+    SELECT id , title , completed , created_at FROM tasks
+    WHERE project_id = $1
+    ${search ? "AND title ILIKE $2" : ""}
+    ORDER BY ${sortField} ${sortOrder}
+    LIMIT $${search ? 3 : 2} OFFSET $${search ? 4 : 3}`;
+    const dataParams = search
+      ? [projectId, searchValue, l, offset]
+      : [projectId, l, offset];
+    const result = await pool.query(dataQuery, dataParams);
     res.json({
       tasks: result.rows,
       meta: {
@@ -79,9 +96,11 @@ export const getTasksByProject = async (req, res) => {
         totalPages: Math.ceil(total / l),
       },
     });
+   
   } catch (error) {
     console.error("GET TASKS ERROR:", error);
     res.status(500).json({ message: "Server error" });
+
   }
 };
 
@@ -93,15 +112,13 @@ export const updateTask = async (req, res) => {
     const userId = req.user.id;
     const check = await checkProjectOwnership(projectId, userId);
     if (!check.ok) {
-      return res
-        .status(check.code)
-        .json({
-          message: check.code === 404 ? "Project not found" : "Forbidden",
-        });
+      return res.status(check.code).json({
+        message: check.code === 404 ? "Project not found" : "Forbidden",
+      });
     }
     const result = await pool.query(
       `UPDATE tasks SET title = COALESCE($1, title), completed = COALESCE($2, completed) WHERE id = $3 AND project_id = $4 RETURNING id, title, completed, created_at`,
-      [title, completed, taskId, projectId]
+      [title, completed, taskId, projectId],
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "Task not found" });
@@ -121,15 +138,13 @@ export const deleteTask = async (req, res) => {
     const userId = req.user.id;
     const check = await checkProjectOwnership(projectId, userId);
     if (!check.ok) {
-      return res
-        .status(check.code)
-        .json({
-          message: check.code === 404 ? "Project not found" : "Forbidden",
-        });
+      return res.status(check.code).json({
+        message: check.code === 404 ? "Project not found" : "Forbidden",
+      });
     }
     const result = await pool.query(
       `DELETE FROM tasks WHERE id = $1 AND project_id = $2`,
-      [taskId, projectId]
+      [taskId, projectId],
     );
 
     if (result.rowCount === 0) {
