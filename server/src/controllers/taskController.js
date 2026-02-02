@@ -67,7 +67,7 @@ export const getTasksByProject = async (req, res) => {
 
     const countQuery = `
     SELECT COUNT(*) FROM tasks
-    WHERE project_id = $1
+    WHERE project_id = $1 AND deleted_at IS NULL
     ${search ? "AND title ILIKE $2" : ""}`;
 
     const countParams = search ? [projectId, searchValue] : [projectId];
@@ -79,7 +79,7 @@ export const getTasksByProject = async (req, res) => {
 
     const dataQuery = `
     SELECT id , title , completed , created_at FROM tasks
-    WHERE project_id = $1
+    WHERE project_id = $1 AND deleted_at IS NULL
     ${search ? "AND title ILIKE $2" : ""}
     ORDER BY ${sortField} ${sortOrder}
     LIMIT $${search ? 3 : 2} OFFSET $${search ? 4 : 3}`;
