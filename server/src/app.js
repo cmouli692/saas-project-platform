@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import protectedTest from "./routes/protectedTest.js";
 import projectRoutes from "./routes/projectRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js"
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 
@@ -31,5 +32,6 @@ app.use("/api/auth", authRoutes);
 app.use("/api", protectedTest);
 app.use("/api/projects", projectRoutes);
 app.use("/api", taskRoutes);
+app.use(errorHandler);
 
 export default app;
