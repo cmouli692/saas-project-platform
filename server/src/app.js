@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import helmet from "helmet";
 import "./config/db.js";
 import dbTestRoute from "./routes/dbTest.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -9,16 +10,22 @@ import projectRoutes from "./routes/projectRoutes.js";
 import taskRoutes from "./routes/taskRoutes.js"
 import { errorHandler } from "./middlewares/errorHandler.js";
 
+import { apiLimiter } from "./middlewares/rateLimiter.js";
+
 const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin:process.env.CLIENT_URL || "http://localhost:5173",
     credentials: true,
+    methods : ["GET" , "POST" , "PUT" , "DELETE" ],
   })
 );
 
-app.use(express.json());
+app.use(helmet());
+app.use(apiLimiter)
+
+app.use(express.json({limit : "10kb"}));
 
 app.use(morgan("dev"));
 
@@ -33,5 +40,6 @@ app.use("/api", protectedTest);
 app.use("/api/projects", projectRoutes);
 app.use("/api", taskRoutes);
 app.use(errorHandler);
+
 
 export default app;
