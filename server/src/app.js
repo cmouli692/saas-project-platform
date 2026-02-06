@@ -11,8 +11,12 @@ import taskRoutes from "./routes/taskRoutes.js"
 import { errorHandler } from "./middlewares/errorHandler.js";
 
 import { apiLimiter } from "./middlewares/rateLimiter.js";
+import { requestId } from "./middlewares/requestId.js";
+import { logger } from "./middlewares/logger.js";
 
 const app = express();
+
+app.use(helmet());
 
 app.use(
   cors({
@@ -22,8 +26,10 @@ app.use(
   })
 );
 
-app.use(helmet());
 app.use(apiLimiter)
+
+app.use(requestId);
+app.use(logger)
 
 app.use(express.json({limit : "10kb"}));
 
