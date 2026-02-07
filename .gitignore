@@ -1,14 +1,9 @@
-
-
-# env files (root + subfolders)
-.env
-.env.*
-client/.env
-client/.env.*
-server/.env
-server/.env.*
-
 # dependencies
 node_modules/
-client/node_modules/
-server/node_modules/
+
+# env files
+.env
+.env.*
+
+# allow env templates
+!.env.example

@@ -1,11 +1,12 @@
 import pool from "../config/db.js";
 import { getPagination } from "../utils/pagination.js";
-import {asyncHandler } from "../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { config } from "../config/config.js";
 
 // CREATE PROJECT
 
-export const createProject = asyncHandler( async(req,res) => {
-  const {name, description} = req.body || {};
+export const createProject = asyncHandler(async (req, res) => {
+  const { name, description } = req.body || {};
   const userId = req.user.id;
 
   const result = await pool.query(
@@ -14,8 +15,8 @@ export const createProject = asyncHandler( async(req,res) => {
     RETURNING id , name, description, created_at`,
     [name, description || "", userId],
   );
-  res.status(201).json({project : result.rows[0]});
-})
+  res.status(201).json({ project: result.rows[0] });
+});
 
 // export const createProject = async (req, res) => {
 
@@ -42,8 +43,6 @@ export const createProject = asyncHandler( async(req,res) => {
 //     res.status(500).json({ message: "Server error" });
 //   }
 // };
-
-
 
 // GET MY PROJECTS
 export const getMyProjects = async (req, res) => {
@@ -167,6 +166,9 @@ export const deleteProject = async (req, res) => {
 
 export const archiveProject = async (req, res) => {
   try {
+    if (!config.features.archive) {
+      return res.status(403).json({ message: "Feature disabled" });
+    }
     const { id } = req.params;
     const userId = req.user.id;
     // Check ownership
