@@ -11,6 +11,21 @@ const router = express.Router();
 router.post("/projects/:projectId/tasks", protect,validate(createTaskSchema) , createTask);
 
 // router.post("/projects/:projectId/tasks", protect, createTask);
+/**
+ * @swagger
+ * /projects/{projectId}/tasks:
+ *   get:
+ *     summary: Get tasks by project ID
+ *     tags: [Tasks]
+ *     parameters:
+ *       - in: path
+ *         name: projectId
+ *         required: true
+ *         schema:{type: integer}
+ *     responses:
+ *       200:
+ *         description: List of tasks
+ */
 router.get("/projects/:projectId/tasks", protect, getTasksByProject);
 router.put("/projects/:projectId/tasks/:taskId", protect, updateTask);
 router.delete("/projects/:projectId/tasks/:taskId", protect, deleteTask);

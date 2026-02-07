@@ -15,6 +15,28 @@ const router = express.Router();
 
 router.post("/" ,protect ,validate(createProjectSchema) , createProject);
 // router.post("/", protect, createProject);
+
+/**
+ * @swagger
+ * /projects:
+ *   get:
+ *     summary: Get my projects
+ *     tags: [Projects]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: {type: integer}
+ *       - in: query
+ *         name: page
+ *         schema: {type: integer}
+ *       - in: query
+ *         name : limit
+ *         schema: {type: integer}
+ *     responses:
+ *       200:
+ *         description: List of projects
+ * 
+ */
 router.get("/", protect, getMyProjects);
 router.put("/:id", protect, updateProject);
 router.delete("/:id", protect, deleteProject);

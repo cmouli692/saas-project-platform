@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
+import swaggerUi from "swagger-ui-express"
+import { swaggerSpec } from "./config/swagger.js";
 import "./config/db.js";
 import dbTestRoute from "./routes/dbTest.js";
 import authRoutes from "./routes/authRoutes.js";
@@ -15,6 +17,7 @@ import { requestId } from "./middlewares/requestId.js";
 import { logger } from "./middlewares/logger.js";
 import { config } from "./config/config.js";
 import { validateEnv } from "./config/validateEnv.js";
+
 
 const app = express();
 
@@ -37,6 +40,8 @@ app.use(express.json({limit : "10kb"}));
 
 app.use(morgan("dev"));
 validateEnv()
+
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "OK", message: "Backend is running" });
