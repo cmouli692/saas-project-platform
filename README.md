@@ -44,6 +44,7 @@ A production-ready SaaS platform with authentication, project & task management.
 ```bash
 cp .env.example .env.development
 
+---
 
 👤 Author
 
