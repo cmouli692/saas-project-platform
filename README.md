@@ -48,10 +48,10 @@ cp .env.example .env.development
 
 
 
-### 👤 Author
+## 👤 Author
 
-**ARLI CHANDRA MOULI**
-GitHub: https://github.com/cmouli692
+- **ARLI CHANDRA MOULI**
+- GitHub: https://github.com/cmouli692
 
 
 
