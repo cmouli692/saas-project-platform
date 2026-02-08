@@ -42,7 +42,7 @@ A production-ready SaaS platform with authentication, project & task management.
 
 ### Environment Setup
 ```bash
-cp .env.example .env.development
+cp .env.example .env.development```
 
 
 
