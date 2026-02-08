@@ -44,9 +44,9 @@ A production-ready SaaS platform with authentication, project & task management.
 ```bash
 cp .env.example .env.development
 
----
 
-👤 Author
+
+### 👤 Author
 
 CHANDRA MOULI
 GitHub: https://github.com/cmouli692/saas-project-platform
