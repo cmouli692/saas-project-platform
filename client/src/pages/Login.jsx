@@ -14,20 +14,21 @@ const Login = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.auth.auth);
+  // const user = useSelector((state) => state.auth.auth);
 
   // const {login,user} = useAuth()
   const navigate = useNavigate();
 
+  const token = useSelector((state) => state.auth.token);
+
   useEffect(() => {
-    if (user) {
+    if (token) {
       navigate("/dashboard");
     }
-  }, [user]);
-
-  const [error, setError] = useState("");
+  }, [token, navigate]);
 
   const handleChange = (e) => {
     console.log(e.target.value);
@@ -43,18 +44,20 @@ const Login = () => {
 
     setLoading(true);
     try {
-      
       // const result = { email: form.email, token: "fake-jwt-token" };
-      const data = await loginUser(form); // backend call
+      const res = await loginUser(form); // backend call
 
-      
-      dispatch(loginSuccess(data));
-     
+      dispatch(
+        loginSuccess({
+          token: res.token,
+          user: res.user,
+        }),
+      );
+
       navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     } finally {
-      
       setLoading(false);
     }
 
@@ -67,9 +70,28 @@ const Login = () => {
 
   // delete below if not needed
 
-  // useEffect(() => {
-  //   console.log("Login page loaded")
-  // } , [])
+  useEffect(() => {
+    console.log("Login page loaded");
+  }, []);
+
+  //   const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     const res = await loginUser({ email, password });
+
+  //     dispatch(
+  //       loginSuccess({
+  //         token: res.data.token,
+  //         user: res.data.user,
+  //       })
+  //     );
+
+  //     navigate("/projects");
+  //   } catch (err) {
+  //     setError(err.response?.data?.message || "Login failed");
+  //   }
+  // };
 
   return (
     <div className="h-screen flex items-center justify-center bg-gray-100">
@@ -93,6 +115,7 @@ const Login = () => {
             placeholder="Password"
           />
           <button
+            disabled={loading}
             type="submit"
             //   className="bg-black text-white p-2 rounded hover:bg-gray-800 cursor-pointer" //
             className="w-full rounded bg-black p-2 text-white disabled:opacity-60"
