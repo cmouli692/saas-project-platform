@@ -6,4 +6,14 @@ export const getProjects = async () => {
 
 };
 
-export const createProject = (data) => api.post("/projects", data);
+
+export const createProject = async (data) => {
+    const res = await api.post("/projects", data) ;
+    return res;
+
+}
+
+export const deleteProject = async (id) => {
+    const res = await api.delete(`/projects/${id}`);
+    return res;
+}

@@ -38,16 +38,21 @@
 
 
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProjects } from "../features/projects/projectsSlice";
+import { addProject, fetchProjects } from "../features/projects/projectsSlice";
 
 const Projects  = () => {
   const dispatch = useDispatch() ;
+
+  const [name , setName ] = useState("");
+  
   const token = useSelector((state) => state.auth.token);
   const {items,loading, error} = useSelector(
     (state) => state.projects
   );
+
+
 
   useEffect(() => {
     if(token) {
@@ -55,6 +60,12 @@ const Projects  = () => {
 
     }
   }, [token, dispatch]);
+  
+  const handleCreate = () => {
+      if(!name) return;
+      dispatch(addProject({name}));
+      setName("");
+  }
 
   // FOUNDATION OUTPUT ONLY
   if(loading) return <p>Loading projects...</p>
@@ -63,6 +74,15 @@ const Projects  = () => {
   return (
     <div>
       <h2>Projects</h2>
+      <input 
+      value= {name}
+      onChange={(e) => setName(e.target.value)}
+      placeholder="Project name"/>
+      <button onClick={handleCreate} >Add</button>
+      {items.map((p) => (
+        <div key={p.id}> <span onClick={() => setSelectProject(p.id)}>{p.name}</span>
+        <button onClick={() => dispatch(removeProject(p.id))}>X</button></div>
+      ))}
       <pre>{JSON.stringify(items , null , 2)}</pre>
     </div>
   )

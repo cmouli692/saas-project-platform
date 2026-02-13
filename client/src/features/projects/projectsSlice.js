@@ -53,6 +53,36 @@ export const fetchProjects = createAsyncThunk(
   },
 );
 
+import { createProject } from "../../api/projectApi";
+
+export const addProject = createAsyncThunk(
+  "projects/add",
+  async (data, {rejectWithValue}) => {
+    try {
+      const res = await createProject(data);
+      return res.data.data;
+    }catch(err){
+      return rejectWithValue("Failed to create project");
+    }
+  }
+)
+
+import { deleteProject } from "../../api/projectApi";
+
+export const removeProject = createAsyncThunk(
+  "projects/remove",
+  async(
+    id, {rejectWithValue}
+  ) => {
+    try{
+      await deleteProject(id);
+      return id;
+    }catch(err) {
+      return rejectWithValue("Failed to delete project");
+    }
+  }
+)
+
 const projectsSlice = createSlice({
   name: "projects",
   initialState: {
@@ -73,7 +103,14 @@ const projectsSlice = createSlice({
       .addCase(fetchProjects.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+
+      .addCase(addProject.fulfilled, (state, action) => {
+        state.items.unshift(action.payload);
+      })
+      .addCase(removeProject.fulfilled, (state, action) => {
+        state.items = state.items.filter( p => p.id !== action.payload);
+      })
   },
 });
 
