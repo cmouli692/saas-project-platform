@@ -106,21 +106,16 @@ const app = express();
 
 const corsOptions = {
   origin: (origin, callback) => {
-    // allow Postman, curl, server-to-server
+    // allow Postman, server-to-server
     if (!origin) return callback(null, true);
 
-    // localhost (dev)
+    // allow local dev
     if (origin === "http://localhost:5173") {
       return callback(null, true);
     }
 
-    // Vercel preview + prod
+    // allow ALL Vercel deployments (prod + preview)
     if (origin.endsWith(".vercel.app")) {
-      return callback(null, true);
-    }
-
-    // explicit prod client
-    if (origin === config.clientUrl) {
       return callback(null, true);
     }
 
@@ -133,6 +128,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
+
 
 /* ============================
    🔐 SECURITY & CORE MIDDLEWARE
