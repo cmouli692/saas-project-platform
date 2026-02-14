@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import pool from "../config/db.js";
 import jwt from "jsonwebtoken";
 
@@ -50,48 +50,112 @@ export const register = async (req, res) => {
 
 
 // LOGIN CONTROLLER
+// export const login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body || {};
+//     if (!email || !password) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Email and password are required" });
+//     }
+
+//     // Find user
+//     const result = await pool.query("SELECT * FROM users WHERE email = $1", [
+//       email,
+//     ]);
+//     if (result.rows.length === 0) {
+//       return res
+//         .status(401)
+//         .json({ success: false, message: "Invalid credentials" });
+//     }
+
+//     const user = result.rows[0];
+
+//     // compare password
+//     const isMatch = bcrypt.compareSync(password, user.password);
+//     if (!isMatch) {
+//       return res
+//         .status(401)
+//         .json({ success: false, message: "Invalid credentials" });
+//     }
+
+//     // Create JWT
+//     const token = await jwt.sign(
+//       { id: user.id, email: user.email },
+//       process.env.JWT_SECRET,
+//       { expiresIn: process.env.JWT_EXPIRES_IN }
+//     );
+
+//     res
+//       .status(200)
+//       .json({ success: true, token, user: { id: user.id, email: user.email } });
+
+//   } catch (error) {
+//     console.error("Login error:", error)
+//     res.status(500).json({success : false,message: "Server error"})
+//   }
+// };
+
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body || {};
+
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Email and password are required" });
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
     }
 
-    // Find user
-    const result = await pool.query("SELECT * FROM users WHERE email = $1", [
-      email,
-    ]);
+    const result = await pool.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
+
     if (result.rows.length === 0) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid credentials" });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
     }
 
     const user = result.rows[0];
 
-    // compare password
-    const isMatch = bcrypt.compareSync(password, user.password);
-    if (!isMatch) {
-      return res
-        .status(401)
-        .json({ success: false, message: "Invalid credentials" });
+    if (!user.password) {
+      return res.status(500).json({
+        success: false,
+        message: "User password not found",
+      });
     }
 
-    // Create JWT
-    const token = await jwt.sign(
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid credentials",
+      });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is not defined");
+    }
+
+    const token = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
+      { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
     );
 
-    res
-      .status(200)
-      .json({ success: true, token, user: { id: user.id, email: user.email } });
-
+    res.status(200).json({
+      success: true,
+      token,
+      user: { id: user.id, email: user.email },
+    });
   } catch (error) {
-    console.error("Login error:", error)
-    res.status(500).json({success : false,message: "Server error"})
+    console.error("Login error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message, // TEMP: expose real error
+    });
   }
 };
