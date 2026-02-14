@@ -129,7 +129,6 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.options("*", cors(corsOptions));
 
-
 /* ============================
    🔐 SECURITY & CORE MIDDLEWARE
 ============================ */
