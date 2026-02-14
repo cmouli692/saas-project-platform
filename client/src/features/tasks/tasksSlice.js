@@ -1,32 +1,109 @@
+// import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+// import { getTasks, createTask, deleteTask } from "../../api/taskApi";
+
+// export const fetchTasks = createAsyncThunk(
+//   "tasks/fetch",
+//   async (projectId, { rejectWithValue }) => {
+//     try {
+//       const res = await getTasks(projectId);
+//       return res.data; // array of projects
+//     } catch (err) {
+//       console.log("FETCH TASKS ERROR", err);
+//       console.log("FETCH TASKS ERROR RESPONSE", err.response);
+//       return rejectWithValue(
+//         err.response?.data?.message || "Failed to fetch projects",
+//       );
+//     }
+//   },
+// );
+
+// export const addTask = createAsyncThunk(
+//   "tasks/add",
+//   async ({ projectId, title }, { rejectWithValue }) => {
+//     try {
+//       const res = await createTask({ projectId, title });
+//       return res.data.data;
+//     } catch (err) {
+//       return rejectWithValue("Failed to add task");
+//     }
+//   },
+// );
+
+// export const removeTask = createAsyncThunk(
+//   "tasks/remove",
+//   async ({ projectId, taskId }, { rejectWithValue }) => {
+//     try {
+//       await deleteTask(projectId, taskId);
+//       return taskId;
+//     } catch (err) {
+//       return rejectWithValue("Failed to delete task");
+//     }
+//   },
+// );
+
+// const tasksSlice = createSlice({
+//   name: "tasks",
+//   initialState: {
+//     items: [],
+//     loading: false,
+//     error: null,
+//   },
+//   extraReducers: (builder) => {
+//     builder
+//       .addCase(fetchTasks.pending, (state) => {
+//         state.loading = true;
+//         state.error = null;
+//       })
+//       .addCase(fetchTasks.fulfilled, (state, action) => {
+//         state.loading = false;
+//         state.items = action.payload;
+//       })
+//       .addCase(fetchTasks.rejected, (state, action) => {
+//         state.loading = false;
+//         state.error = action.payload;
+//       })
+
+//       .addCase(addTask.fulfilled, (state, action) => {
+//         state.items.unshift(action.payload);
+//       })
+//       .addCase(removeTask.fulfilled, (state, action) => {
+//         state.items = state.items.filter((task) => task._id !== action.payload);
+//       });
+//   },
+// });
+
+// export default tasksSlice.reducer;
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getTasks, createTask, deleteTask } from "../../api/taskApi";
+import {
+  getTasksByProject,
+  createTask,
+  deleteTask,
+} from "../../api/taskApi";
 
 export const fetchTasks = createAsyncThunk(
   "tasks/fetch",
   async (projectId, { rejectWithValue }) => {
     try {
-      const res = await getTasks(projectId);
-      return res.data; // array of projects
-    } catch (err) {
-      console.log("FETCH TASKS ERROR", err);
-      console.log("FETCH TASKS ERROR RESPONSE", err.response);
-      return rejectWithValue(
-        err.response?.data?.message || "Failed to fetch projects",
-      );
+      const res = await getTasksByProject(projectId);
+      return res.data.data;
+    } catch {
+      return rejectWithValue("Failed to fetch tasks");
     }
-  },
+  }
 );
 
 export const addTask = createAsyncThunk(
   "tasks/add",
   async ({ projectId, title }, { rejectWithValue }) => {
     try {
-      const res = await createTask({ projectId, title });
-      return res.data.data;
-    } catch (err) {
+      const res = await createTask(projectId, { title });
+      console.log(res)
+      return res.data.task;
+    } catch {
       return rejectWithValue("Failed to add task");
     }
-  },
+  }
 );
 
 export const removeTask = createAsyncThunk(
@@ -35,10 +112,10 @@ export const removeTask = createAsyncThunk(
     try {
       await deleteTask(projectId, taskId);
       return taskId;
-    } catch (err) {
+    } catch {
       return rejectWithValue("Failed to delete task");
     }
-  },
+  }
 );
 
 const tasksSlice = createSlice({
@@ -48,11 +125,15 @@ const tasksSlice = createSlice({
     loading: false,
     error: null,
   },
+  reducers: {
+    clearTasks: (state) => {
+      state.items = [];
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchTasks.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchTasks.fulfilled, (state, action) => {
         state.loading = false;
@@ -62,14 +143,17 @@ const tasksSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-
       .addCase(addTask.fulfilled, (state, action) => {
         state.items.unshift(action.payload);
       })
       .addCase(removeTask.fulfilled, (state, action) => {
-        state.items = state.items.filter((task) => task._id !== action.payload);
+        state.items = state.items.filter(
+          (t) => t.id !== action.payload
+        );
       });
   },
 });
 
+export const { clearTasks } = tasksSlice.actions;
 export default tasksSlice.reducer;
+

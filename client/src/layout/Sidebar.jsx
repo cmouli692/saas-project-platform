@@ -1,10 +1,11 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 
 const Sidebar = () => {
+  const {projectId} = useParams()
   const links = [
     { path: "/dashboard", label: "Dashboard" },
     { path: "/projects", label: "Projects" },
-    { path: "/tasks", label: "Tasks" },
+    { path: `/projects/${projectId}/tasks`, label: "Tasks" },
     { path: "/settings", label: "Settings" },
   ];
 

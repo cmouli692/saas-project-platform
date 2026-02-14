@@ -19,7 +19,7 @@ function App() {
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>}/>
         {/* <Route path='/dashboard' element={<Dashboard/>}/> */}
         <Route path="/projects" element={<PrivateRoute><Projects/></PrivateRoute>}/>
-        <Route path="/tasks" element={<PrivateRoute><Tasks/></PrivateRoute>}/>
+        <Route path="/projects/:projectId/tasks" element={<PrivateRoute><Tasks/></PrivateRoute>}/>
         <Route path="/settings" element={<PrivateRoute><Settings/></PrivateRoute>}/>
       </Routes>
     </>
