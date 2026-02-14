@@ -21,7 +21,7 @@ import { validateEnv } from "./config/validateEnv.js";
 
 const app = express();
 
-app.use(helmet());
+
 
 app.use(
   cors({
@@ -41,6 +41,8 @@ app.use(
     methods : ["GET" , "POST" , "PUT" , "DELETE" ],
   })
 );
+
+app.use(helmet());
 
 app.use(apiLimiter)
 
