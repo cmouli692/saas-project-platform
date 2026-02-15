@@ -11,17 +11,17 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
-  ssl: {
-    rejectUnauthorized: false, // REQUIRED for Neon
-  },
+
+  // 🔥 THIS IS THE FIX
+  ssl: true,
 });
 
 pool.on("connect", () => {
-  console.log("PostgreSQL connected (SSL enabled)");
+  console.log("PostgreSQL connected securely (Neon)");
 });
 
 pool.on("error", (err) => {
-  console.error("PostgreSQL connection error:", err);
+  console.error("PostgreSQL error:", err);
 });
 
 export default pool;
